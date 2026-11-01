@@ -248,7 +248,9 @@ export async function getCompetitors(): Promise<{ accounts: CompetitorAccount[];
 }
 
 // DMs sent per keyword, from the comment bot's /stats endpoint.
-export async function getDmCounts(): Promise<{ counts: Record<string, number> } | { error: string } | null> {
+export type DmStats = { counts: Record<string, number>; publicReplies: Record<string, number> };
+
+export async function getDmCounts(): Promise<DmStats | { error: string } | null> {
   "use cache";
   cacheLife({ stale: 60, revalidate: 300, expire: 86400 });
   cacheTag("ig");
@@ -258,5 +260,7 @@ export async function getDmCounts(): Promise<{ counts: Record<string, number> } 
   if (!url || !token) return null;
   const res = await fetch(url, { headers: { authorization: `Bearer ${token}` } });
   if (!res.ok) return { error: `The bot answered ${res.status}. Set STATS_TOKEN on the worker to the same value as BOT_STATS_TOKEN here.` };
-  return { counts: await res.json() };
+  const body = await res.json();
+  // Older bot versions returned the counts object alone.
+  return body.counts ? { counts: body.counts, publicReplies: body.publicReplies ?? {} } : { counts: body, publicReplies: {} };
 }

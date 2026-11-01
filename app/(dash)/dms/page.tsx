@@ -7,7 +7,7 @@ export default function DmsPage() {
   return (
     <>
       <h1 className="page-title">Comment to DM</h1>
-      <p className="lead muted">DMs the bot sent per keyword, next to the comments on its reel. Testers only until App Review.</p>
+      <p className="lead muted">DMs the bot sent per keyword, the public &quot;check your DMs&quot; replies under those comments, and the comments on the reel.</p>
       <Suspense fallback={<div>{Array.from({ length: 5 }, (_, i) => <div key={i} className="skel skel-row" />)}</div>}>
         <Keywords />
       </Suspense>
@@ -25,7 +25,7 @@ async function Keywords() {
   }
   const rows = Object.entries(dm.counts).map(([word, sent]) => {
     const post = posts.find((p) => p.keyword === word);
-    return { word, sent, post, rate: post?.comments ? (sent / post.comments) * 100 : undefined };
+    return { word, sent, replied: dm.publicReplies[word] ?? 0, post, rate: post?.comments ? (sent / post.comments) * 100 : undefined };
   });
   rows.sort((a, b) => b.sent - a.sent);
   return (
@@ -34,6 +34,7 @@ async function Keywords() {
         <tr>
           <th scope="col">Keyword</th>
           <th scope="col" className="num-col">DMs sent</th>
+          <th scope="col" className="num-col">Public replies</th>
           <th scope="col" className="num-col">Comments on reel</th>
           <th scope="col" className="num-col">DMs per comment</th>
         </tr>
@@ -46,6 +47,7 @@ async function Keywords() {
               {!r.post && <span className="post-meta"> no live reel found</span>}
             </th>
             <td data-label="DMs sent" className="num">{num(r.sent)}</td>
+            <td data-label="Public replies" className="num">{num(r.replied)}</td>
             <td data-label="Comments on reel" className="num">{num(r.post?.comments)}</td>
             <td data-label="DMs per comment" className="num">{pct(r.rate)}</td>
           </tr>

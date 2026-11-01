@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { getDashboard, getDmCounts } from "@/lib/ig";
+import { getDashboard, getDmCounts, getKeywordComments, type DmStats } from "@/lib/ig";
+import CopyButton from "@/components/copy-button";
 import { num, pct } from "@/lib/format";
 
 export default function DmsPage() {
@@ -8,6 +9,9 @@ export default function DmsPage() {
     <>
       <h1 className="page-title">Comment to DM</h1>
       <p className="lead muted">DMs the bot sent per keyword, the public &quot;check your DMs&quot; replies under those comments, and the comments on the reel.</p>
+      <Suspense fallback={<div>{Array.from({ length: 4 }, (_, i) => <div key={i} className="skel skel-row" />)}</div>}>
+        <Queue />
+      </Suspense>
       <Suspense fallback={<div>{Array.from({ length: 5 }, (_, i) => <div key={i} className="skel skel-row" />)}</div>}>
         <Keywords />
       </Suspense>
@@ -54,5 +58,43 @@ async function Keywords() {
         ))}
       </tbody>
     </table></div>
+  );
+}
+
+// Keyword comments from the last 8 days the bot hasn't DM'd: reply by hand from here.
+async function Queue() {
+  const [dmRaw, { posts }] = await Promise.all([getDmCounts(), getDashboard()]);
+  const newest = posts.reduce((m, p) => (p.date > m ? p.date : m), "");
+  const comments = newest ? await getKeywordComments(posts, newest) : [];
+  const dm: DmStats | null = dmRaw && !("error" in dmRaw) ? dmRaw : null;
+  const known = new Set(dm?.replied ?? []);
+  const waiting = comments.filter((c) => !known.has(c.id));
+  return (
+    <section className="card list-card queue" aria-labelledby="queue-h">
+      <div className="section-head">
+        <h2 id="queue-h">Waiting for a DM</h2>
+        <p className="muted small">{dm ? `${waiting.length} of ${comments.length} keyword comments in the last 8 days` : "bot status unknown until STATS_TOKEN is set"}</p>
+      </div>
+      {waiting.length === 0 ? (
+        <p className="muted">Nobody is waiting. Every keyword comment Instagram shows apps has had its DM.</p>
+      ) : (
+        <ul className="qlist">
+          {waiting.map((c) => (
+            <li key={c.id} className="qrow">
+              <div className="qtext">
+                <a href={`https://www.instagram.com/${c.username}/`} target="_blank" rel="noreferrer" className="qname">@{c.username}</a>
+                <span className="muted small"> on {c.keyword}, {new Date(c.timestamp).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" })}</span>
+                <p className="qcomment">{c.text}</p>
+              </div>
+              <div className="qactions">
+                {dm?.texts[c.keyword] && <CopyButton text={dm.texts[c.keyword]} />}
+                <a className="btn btn-quiet btn-small" href={c.permalink} target="_blank" rel="noreferrer">Open reel</a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="muted small">Comments Instagram hides from apps (its spam filter, limited accounts) never show here. Check Hidden comments in the app too.</p>
+    </section>
   );
 }

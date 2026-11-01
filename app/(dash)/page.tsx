@@ -5,6 +5,8 @@ import { num, pct, secs, shortDate } from "@/lib/format";
 import PostsTable from "@/components/posts-table";
 import SkipBar from "@/components/skip-bar";
 import { ArrowIcon } from "@/components/icons";
+import OpenerCard from "@/components/opener-card";
+import { getOpenerTags } from "@/lib/openers";
 
 export default function PostsPage() {
   return (
@@ -15,7 +17,7 @@ export default function PostsPage() {
 }
 
 async function Overview() {
-  const { account: a, posts, pulledAt } = await getDashboard();
+  const [{ account: a, posts, pulledAt }, tags] = await Promise.all([getDashboard(), getOpenerTags()]);
   // Reels with enough views for the skip rate to mean something, newest first.
   const reels = posts.filter((p) => p.format === "reel" && typeof p.skip === "number" && (p.views ?? 0) >= 100);
   const latest = reels[0];
@@ -63,7 +65,9 @@ async function Overview() {
         <div className="card stat"><dt>Avg watch, last {last5.length} reels</dt><dd>{secs(watch)}</dd><p className="stat-sub">median per reel</p></div>
       </dl>
 
-      <PostsTable posts={posts} />
+      <OpenerCard posts={posts} tags={tags} />
+
+      <PostsTable posts={posts} tags={tags} />
       <p className="pulled">Pulled {new Date(pulledAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" })} IST. Instagram can lag up to 48 hours.</p>
     </>
   );

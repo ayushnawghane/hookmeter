@@ -220,10 +220,12 @@ export async function getCompetitors(): Promise<{ accounts: CompetitorAccount[];
         const bd = body.business_discovery;
         const reels = (bd.media?.data ?? []).filter((m: any) => m.media_product_type === "REELS" && typeof m.view_count === "number");
         const med = median(reels.map((m: any) => m.view_count));
+        const newest = reels.reduce((m: string, r: any) => (r.timestamp > m ? r.timestamp : m), "");
+        const recentCutoff = newest ? new Date(newest).getTime() - 30 * 86400_000 : 0;
         accounts.push({ username, followers: bd.followers_count, medianViews: med });
         for (const m of reels) {
           const ratio = med ? m.view_count / med : 0;
-          if (ratio >= 3) {
+          if (ratio >= 3 && new Date(m.timestamp).getTime() >= recentCutoff) {
             outliers.push({
               username,
               id: m.id,
@@ -248,7 +250,12 @@ export async function getCompetitors(): Promise<{ accounts: CompetitorAccount[];
 }
 
 // DMs sent per keyword, from the comment bot's /stats endpoint.
-export type DmStats = { counts: Record<string, number>; publicReplies: Record<string, number> };
+export type DmStats = {
+  counts: Record<string, number>;
+  publicReplies: Record<string, number>;
+  replied: string[];
+  texts: Record<string, string>;
+};
 
 export async function getDmCounts(): Promise<DmStats | { error: string } | null> {
   "use cache";
@@ -262,5 +269,33 @@ export async function getDmCounts(): Promise<DmStats | { error: string } | null>
   if (!res.ok) return { error: `The bot answered ${res.status}. Set STATS_TOKEN on the worker to the same value as BOT_STATS_TOKEN here.` };
   const body = await res.json();
   // Older bot versions returned the counts object alone.
-  return body.counts ? { counts: body.counts, publicReplies: body.publicReplies ?? {} } : { counts: body, publicReplies: {} };
+  return body.counts
+    ? { counts: body.counts, publicReplies: body.publicReplies ?? {}, replied: body.replied ?? [], texts: body.texts ?? {} }
+    : { counts: body, publicReplies: {}, replied: [], texts: {} };
+}
+
+export type KeywordComment = { id: string; username: string; text: string; timestamp: string; keyword: string; postId: string; permalink: string };
+
+// Comments that contain a reel's keyword, on reels from the last 8 days (Instagram allows a private
+// reply for 7 days). Comments Instagram hides from apps never appear here.
+export async function getKeywordComments(posts: Post[], newestDate: string): Promise<KeywordComment[]> {
+  "use cache";
+  cacheLife({ stale: 60, revalidate: 300, expire: 86400 });
+  cacheTag("ig");
+
+  const cutoff = new Date(`${newestDate}T00:00:00Z`).getTime() - 8 * 86400_000;
+  const reels = posts.filter((p) => p.keyword && new Date(`${p.date}T00:00:00Z`).getTime() >= cutoff && (p.comments ?? 0) > 0);
+  const found: KeywordComment[] = [];
+  await Promise.all(
+    reels.map(async (p) => {
+      const body = await graph(`${p.id}/comments`, { fields: "id,text,username,timestamp", limit: "50" }).catch(() => ({ data: [] }));
+      const pattern = new RegExp(`(^|[^\\p{L}\\p{N}])${p.keyword}([^\\p{L}\\p{N}]|$)`, "iu");
+      for (const c of body.data ?? []) {
+        if (c.text && pattern.test(c.text)) {
+          found.push({ id: c.id, username: c.username ?? "someone", text: c.text, timestamp: c.timestamp, keyword: p.keyword!, postId: p.id, permalink: p.permalink });
+        }
+      }
+    }),
+  );
+  return found.sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
 }

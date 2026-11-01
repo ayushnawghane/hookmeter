@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { COOKIE, checkPassword, sessionValue, setPassword } from "@/lib/auth";
 import { redisEnabled } from "@/lib/redis";
+import { saveOpener } from "@/lib/openers";
+import type { Opener } from "@/lib/opener-types";
 
 export async function refresh() {
   updateTag("ig");
@@ -57,4 +59,12 @@ export async function changePassword(_: ChangeState, form: FormData): Promise<Ch
   await setPassword(next);
   await setSession(); // this device stays signed in; every other session's cookie no longer matches
   return { ok: true };
+}
+
+export async function setOpener(mediaId: string, opener: Opener): Promise<{ error?: string }> {
+  if (!redisEnabled()) return { error: "Connect Upstash Redis to save tags." };
+  if (!/^\d+$/.test(mediaId) || !["footage", "ai", "text"].includes(opener)) return { error: "Unknown post or tag." };
+  await saveOpener(mediaId, opener);
+  updateTag("openers");
+  return {};
 }

@@ -5,15 +5,18 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Post } from "@/lib/ig";
 import { num, secs, shortDate } from "@/lib/format";
 import SkipBar from "./skip-bar";
+import { OPENERS, openerFor, type Opener } from "@/lib/opener-types";
 
-type Key = "date" | "skip" | "avgWatch" | "views" | "reach" | "shares" | "saved" | "comments";
+type Key = "date" | "skip" | "avgWatch" | "views" | "reach" | "sendsK" | "savesK" | "comments";
+const per1k = (v?: number, reach?: number) => (typeof v === "number" && reach ? (v / reach) * 1000 : undefined);
+const fmt1 = (v?: number) => (typeof v === "number" ? (v >= 10 ? Math.round(v).toString() : v.toFixed(1)) : "n/a");
 const COLS: { key: Key; label: string }[] = [
   { key: "skip", label: "Skip rate" },
   { key: "avgWatch", label: "Avg watch" },
   { key: "views", label: "Views" },
   { key: "reach", label: "Reach" },
-  { key: "shares", label: "Shares" },
-  { key: "saved", label: "Saves" },
+  { key: "sendsK", label: "Sends /1k" },
+  { key: "savesK", label: "Saves /1k" },
   { key: "comments", label: "Comments" },
 ];
 const FORMATS = [
@@ -22,7 +25,7 @@ const FORMATS = [
   { value: "carousel", label: "Carousels" },
 ];
 
-export default function PostsTable({ posts }: { posts: Post[] }) {
+export default function PostsTable({ posts, tags }: { posts: Post[]; tags: Record<string, Opener> }) {
   const params = useSearchParams();
   const router = useRouter();
   const path = usePathname();
@@ -37,6 +40,7 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
   };
 
   const rows = posts
+    .map((p) => ({ ...p, sendsK: per1k(p.shares, p.reach), savesK: per1k(p.saved, p.reach), opener: openerFor(p, tags) }))
     .filter((p) => fmt === "all" || p.format === fmt)
     .sort((a, b) => {
       const av = sort === "date" ? a.date : a[sort];
@@ -99,6 +103,7 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
                       <span className="post-meta">
                         {shortDate(p.date)}, {p.format}
                         {p.aboveMedian && <span className="badge">above median</span>}
+                        {p.opener && <span className="badge badge-quiet">{OPENERS.find((o) => o.value === p.opener)?.label}</span>}
                       </span>
                     </span>
                   </Link>
@@ -107,8 +112,8 @@ export default function PostsTable({ posts }: { posts: Post[] }) {
                 <td data-label="Avg watch" className="num">{secs(p.avgWatch)}</td>
                 <td data-label="Views" className="num">{num(p.views)}</td>
                 <td data-label="Reach" className="num">{num(p.reach)}</td>
-                <td data-label="Shares" className="num">{num(p.shares)}</td>
-                <td data-label="Saves" className="num">{num(p.saved)}</td>
+                <td data-label="Sends /1k" className="num" title={`${num(p.shares)} sends`}>{fmt1(p.sendsK)}</td>
+                <td data-label="Saves /1k" className="num" title={`${num(p.saved)} saves`}>{fmt1(p.savesK)}</td>
                 <td data-label="Comments" className="num">{num(p.comments)}</td>
               </tr>
             ))}

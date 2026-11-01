@@ -190,6 +190,33 @@ dd { margin: 0; font-size: var(--text-2xl); font-weight: 600; letter-spacing: -0
 .panel { padding: var(--space-lg); display: grid; gap: var(--space-sm); justify-items: stretch; }
 .panel h2 { font-size: var(--text-xl); }
 .panel form .btn { justify-self: start; }
+.small { font-size: var(--text-sm); }
+.btn-small { min-height: 36px; padding-inline: var(--space-md); font-size: var(--text-sm); text-decoration: none; }
+.badge-quiet { background: var(--color-paper-2); color: var(--color-ink-2); }
+.seg-wrap { flex-wrap: wrap; border-radius: var(--radius-input); }
+.opener-picker .help { min-height: 0; }
+.opener-card { margin-bottom: var(--space-md); }
+.obars { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-sm); }
+.obar { display: grid; grid-template-columns: minmax(9rem, 14rem) minmax(0, 1fr) 4.5rem; align-items: center; gap: var(--space-sm); }
+.obar-label { font-weight: 500; }
+.obar-track { position: relative; height: 14px; border-radius: 7px; background: var(--color-paper-2); }
+.obar-fill { position: absolute; inset: 0; border-radius: 7px; background: var(--color-ink-2); transform-origin: 0 50%; }
+.obar[data-band="bad"] .obar-fill { background: var(--color-bad); }
+.obar[data-band="good"] .obar-fill { background: var(--color-mark); }
+.obar-num { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.queue { margin-bottom: var(--space-md); }
+.qlist { list-style: none; margin: 0; padding: 0; }
+.qrow { display: flex; justify-content: space-between; align-items: center; gap: var(--space-md); padding-block: var(--space-sm); border-bottom: var(--rule-hair) solid var(--color-rule); }
+.qrow:last-child { border-bottom: 0; }
+.qtext { min-width: 0; }
+.qname { font-weight: 600; color: var(--color-ink); text-decoration: none; }
+.qcomment { margin-top: var(--space-3xs); overflow-wrap: anywhere; }
+.qactions { display: flex; gap: var(--space-xs); flex: none; }
+@media (max-width: 47.5rem) {
+  .obar { grid-template-columns: minmax(0, 1fr) 4rem; }
+  .obar-track { grid-column: 1 / -1; grid-row: 2; }
+  .qrow { flex-direction: column; align-items: stretch; }
+}
 
 /* tablet */
 @media (max-width: 60rem) {

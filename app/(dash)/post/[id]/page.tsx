@@ -6,6 +6,9 @@ import { getSnapshots, historyEnabled } from "@/lib/store";
 import { num, pct, secs, shortDate } from "@/lib/format";
 import SkipBar from "@/components/skip-bar";
 import LineChart from "@/components/line-chart";
+import OpenerPicker from "@/components/opener-picker";
+import { getOpenerTags } from "@/lib/openers";
+import { openerFor } from "@/lib/opener-types";
 
 export default function PostPage({ params }: { params: Promise<{ id: string }> }) {
   return (
@@ -17,7 +20,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
 async function PostDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ posts }, snaps] = await Promise.all([getDashboard(), getSnapshots()]);
+  const [{ posts }, snaps, tags] = await Promise.all([getDashboard(), getSnapshots(), getOpenerTags()]);
   const p = posts.find((x) => x.id === id);
   if (!p) notFound();
   const series = snaps.filter((s) => s.posts[id]?.views !== undefined).map((s) => ({ x: s.date, y: s.posts[id].views! }));
@@ -27,7 +30,9 @@ async function PostDetail({ params }: { params: Promise<{ id: string }> }) {
     ["Likes", num(p.likes)],
     ["Comments", num(p.comments)],
     ["Shares", num(p.shares)],
+    ["Sends per 1k reach", p.reach && p.shares !== undefined ? ((p.shares / p.reach) * 1000).toFixed(1) : "n/a"],
     ["Saves", num(p.saved)],
+    ["Saves per 1k reach", p.reach && p.saved !== undefined ? ((p.saved / p.reach) * 1000).toFixed(1) : "n/a"],
     ["Reposts", num(p.reposts)],
   ];
   if (p.format === "reel") rows.splice(0, 0, ["Avg watch", secs(p.avgWatch)]);
@@ -53,6 +58,12 @@ async function PostDetail({ params }: { params: Promise<{ id: string }> }) {
           <p className="spot-label">Skip rate</p>
           <p className="spot-figure"><span className="spot-num">{pct(p.skip)}</span> <span className="spot-unit">swiped away in 3 s</span></p>
           <SkipBar value={p.skip} pill={false} />
+        </section>
+      )}
+      {p.format === "reel" && (
+        <section className="card panel" aria-labelledby="f0-h">
+          <h2 id="f0-h">What did frame 0 show?</h2>
+          <OpenerPicker mediaId={p.id} current={openerFor(p, tags)} />
         </section>
       )}
       <dl className="metric-list card">

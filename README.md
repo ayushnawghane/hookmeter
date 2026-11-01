@@ -6,11 +6,14 @@ competitor outlier reels and comment-to-DM counts. Next.js 16 (App Router, Cache
 Live: https://hookmeter.vercel.app (deploys on every push to `main`).
 
 ## Screens
-- **Posts**: the latest reel's skip rate against your median, four stat cards, and every post in a sortable
-  table (sort and filter live in the URL). Tap a post for all its metrics and views by day.
+- **Posts**: the latest reel's skip rate against your median, four stat cards, **skip rate by opener** (real
+  footage vs AI image or mock-up vs text/counter, tagged per reel on its page), and every post in a sortable
+  table with sends and saves per 1,000 reach (sort and filter live in the URL). Tap a post for all its
+  metrics, its frame-0 tag and views by day.
 - **Growth**: followers, 28-day reach and non-follower reach, from a daily snapshot (needs Upstash Redis).
-- **Competitors**: reels that did 3x or more their own account's median views, from `COMPETITORS`.
-- **DMs**: DMs the comment bot sent per keyword, next to the comments on that reel.
+- **Competitors**: reels from the last 30 days that did 3x or more their own account's median views, from `COMPETITORS`.
+- **DMs**: a **Waiting for a DM** queue (keyword comments from the last 8 days the bot hasn't DM'd, with the DM
+  text to copy), then DMs and public replies per keyword next to the comments on that reel.
 - **Settings**: change the password (show/hide on every password field) and sign out.
 
 ## Run locally

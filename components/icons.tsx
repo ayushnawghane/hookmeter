@@ -20,3 +20,12 @@ export const RefreshIcon = ({ size = 20 }: P) => (
 export const ArrowIcon = ({ size = 16 }: P) => (
   <svg {...base(size)} aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
 );
+export const SettingsIcon = ({ size = 20 }: P) => (
+  <svg {...base(size)} aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9" /><circle cx="15" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg>
+);
+export const EyeIcon = ({ size = 20 }: P) => (
+  <svg {...base(size)} aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z" /><circle cx="12" cy="12" r="3" /></svg>
+);
+export const EyeOffIcon = ({ size = 20 }: P) => (
+  <svg {...base(size)} aria-hidden="true"><path d="M3.5 3.5l17 17" /><path d="M10.6 6.6c.5-.1.9-.1 1.4-.1 6 0 9.5 5.5 9.5 5.5a17 17 0 0 1-2.6 3.3M6.6 6.7A16.6 16.6 0 0 0 2.5 12S6 18.5 12 18.5c1.6 0 3-.4 4.3-1" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /></svg>
+);

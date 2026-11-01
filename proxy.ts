@@ -4,6 +4,9 @@ import { COOKIE, safeEqual, sessionValue } from "@/lib/auth";
 export async function proxy(request: NextRequest) {
   const cookie = request.cookies.get(COOKIE)?.value ?? "";
   if (cookie && safeEqual(cookie, await sessionValue())) return NextResponse.next();
+  // The cached password record can be up to 30 s old; a cookie issued just after a change
+  // would fail against it, so check once more against Redis before refusing.
+  if (cookie && safeEqual(cookie, await sessionValue(true))) return NextResponse.next();
   const login = new URL("/login", request.url);
   if (request.nextUrl.pathname !== "/") login.searchParams.set("next", request.nextUrl.pathname);
   return NextResponse.redirect(login);

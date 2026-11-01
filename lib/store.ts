@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any -- raw Graph API / Redis JSON */
 // Daily snapshots in Upstash Redis (REST API, no SDK). Optional: without the env vars, history is off.
 import { cacheLife, cacheTag } from "next/cache";
+import { redis, redisEnabled } from "./redis";
 
 export type Snapshot = {
   date: string;
@@ -11,22 +11,7 @@ export type Snapshot = {
   posts: Record<string, { views?: number; reach?: number; skip?: number; shares?: number }>;
 };
 
-const url = () => process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
-const token = () => process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
-
-export const historyEnabled = () => Boolean(url() && token());
-
-async function redis(...command: (string | number)[]): Promise<any> {
-  const res = await fetch(url()!, {
-    method: "POST",
-    headers: { authorization: `Bearer ${token()}`, "content-type": "application/json" },
-    body: JSON.stringify(command),
-    cache: "no-store",
-  });
-  const body = await res.json();
-  if (body.error) throw new Error(`Redis: ${body.error}`);
-  return body.result;
-}
+export const historyEnabled = redisEnabled;
 
 export async function saveSnapshot(s: Snapshot): Promise<void> {
   await redis("SET", `snap:${s.date}`, JSON.stringify(s));

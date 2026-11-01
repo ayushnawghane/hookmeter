@@ -3,18 +3,18 @@
 import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { login, type LoginState } from "../actions";
+import PasswordInput from "@/components/password-input";
 
 export default function LoginForm() {
   const next = useSearchParams().get("next") ?? "/";
   const [state, action, pending] = useActionState<LoginState, FormData>(login, {});
   return (
-    <form action={action} className="login-form">
+    <form action={action} className="form">
       <input type="hidden" name="next" value={next} />
       <label htmlFor="password">Password</label>
-      <input
+      <PasswordInput
         id="password"
         name="password"
-        type="password"
         autoComplete="current-password"
         required
         autoFocus

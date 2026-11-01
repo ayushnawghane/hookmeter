@@ -11,6 +11,7 @@ Live: https://hookmeter.vercel.app (deploys on every push to `main`).
 - **Growth**: followers, 28-day reach and non-follower reach, from a daily snapshot (needs Upstash Redis).
 - **Competitors**: reels that did 3x or more their own account's median views, from `COMPETITORS`.
 - **DMs**: DMs the comment bot sent per keyword, next to the comments on that reel.
+- **Settings**: change the password (show/hide on every password field) and sign out.
 
 ## Run locally
 ```sh
@@ -36,6 +37,12 @@ bunx vercel env add <NAME> production   # once per var above
 bunx vercel deploy --prod
 ```
 Then in the Vercel dashboard: Storage → add Upstash Redis to this project, and redeploy.
+
+## Change the password
+Settings (the sliders icon, top right) → Change password. It needs Upstash Redis connected: the new password is
+stored there as a salted PBKDF2 hash (`auth:password`), never in plain text, and wins over `APP_PASSWORD`. Every
+other device is signed out within 30 seconds; the device you changed it on stays in. Forgot it? Delete the
+`auth:password` key in the Upstash console and `APP_PASSWORD` works again.
 
 ## Install on the phone
 Open the URL in Safari (iPhone) → Share → Add to Home Screen, or Chrome (Android) → Install app.

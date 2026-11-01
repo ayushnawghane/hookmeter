@@ -161,7 +161,9 @@ export async function loadDashboard(): Promise<Dashboard> {
       date: m.timestamp.slice(0, 10),
       format: format(m),
       caption,
-      keyword: caption.match(/^comment\s+([A-Z0-9]{3,})\b/i)?.[1]?.toUpperCase() ?? null,
+      // "Comment MARIO ..." anywhere in the caption (older captions put the ask lower down). Uppercase only,
+      // so ordinary words after "comment" don't count.
+      keyword: (m.caption ?? "").match(/\bcomment\s+([A-Z0-9]{3,})\b/i)?.[1]?.match(/^[A-Z0-9]+$/)?.[0] ?? null,
       permalink: m.permalink,
       thumb: m.thumbnail_url ?? (m.media_type === "IMAGE" || m.media_type === "CAROUSEL_ALBUM" ? m.media_url : null) ?? null,
       views: ins.views,

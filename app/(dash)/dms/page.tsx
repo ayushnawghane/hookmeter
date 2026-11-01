@@ -48,7 +48,7 @@ async function Keywords() {
           <tr key={r.word}>
             <th scope="row">
               {r.post ? <Link href={`/post/${r.post.id}`} className="kw">{r.word}</Link> : <span className="kw">{r.word}</span>}
-              {!r.post && <span className="post-meta"> no live reel found</span>}
+              {!r.post && <span className="post-meta"> no caption asks for it</span>}
             </th>
             <td data-label="DMs sent" className="num">{num(r.sent)}</td>
             <td data-label="Public replies" className="num">{num(r.replied)}</td>

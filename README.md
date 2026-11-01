@@ -3,6 +3,8 @@
 Is your hook working? A private dashboard (installable PWA) for **@ayush.nawghane.dev**: skip rate per reel, reach, growth over time,
 competitor outlier reels and comment-to-DM counts. Next.js 16 (App Router, Cache Components), Bun, Vercel.
 
+Live: https://hookmeter.vercel.app (deploys on every push to `main`).
+
 ## Screens
 - **Posts**: the latest reel's skip rate against your median, four stat cards, and every post in a sortable
   table (sort and filter live in the URL). Tap a post for all its metrics and views by day.

@@ -1,6 +1,6 @@
-# ig-insights-app
+# Hookmeter
 
-A private dashboard (installable PWA) for **@ayush.nawghane.dev**: skip rate per reel, reach, growth over time,
+Is your hook working? A private dashboard (installable PWA) for **@ayush.nawghane.dev**: skip rate per reel, reach, growth over time,
 competitor outlier reels and comment-to-DM counts. Next.js 16 (App Router, Cache Components), Bun, Vercel.
 
 ## Screens

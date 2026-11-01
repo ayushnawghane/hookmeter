@@ -1,5 +1,5 @@
 // Offline: pages are network-first with the last good copy as fallback; static assets are cache-first.
-const CACHE = "insights-v2";
+const CACHE = "hookmeter-v1";
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {

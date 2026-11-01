@@ -8,7 +8,7 @@ export default function DashLayout({ children }: { children: React.ReactNode }) 
     <>
       <header className="topbar">
         <div className="topbar-inner">
-          <Link href="/" className="wordmark" aria-label="Insights home">insights</Link>
+          <Link href="/" className="wordmark" aria-label="Hookmeter home">hookmeter</Link>
           <Suspense fallback={<NavFallback />}>
             <Nav />
           </Suspense>

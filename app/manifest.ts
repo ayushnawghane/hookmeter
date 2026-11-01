@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Insights for @ayush.nawghane.dev",
-    short_name: "Insights",
-    description: "Reach, skip rate and DMs for @ayush.nawghane.dev.",
+    name: "Hookmeter",
+    short_name: "Hookmeter",
+    description: "Is your hook working? Skip rate, reach and DMs for @ayush.nawghane.dev.",
     start_url: "/",
     scope: "/",
     display: "standalone",

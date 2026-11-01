@@ -3,9 +3,9 @@ import "./globals.css";
 import RegisterSW from "@/components/register-sw";
 
 export const metadata: Metadata = {
-  title: "Insights · @ayush.nawghane.dev",
-  description: "Reach, skip rate and DMs for @ayush.nawghane.dev, refreshed every 15 minutes.",
-  appleWebApp: { capable: true, title: "Insights", statusBarStyle: "default" },
+  title: "Hookmeter · @ayush.nawghane.dev",
+  description: "Is your hook working? Skip rate, reach and DMs for @ayush.nawghane.dev, refreshed every 15 minutes.",
+  appleWebApp: { capable: true, title: "Hookmeter", statusBarStyle: "default" },
   icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
   robots: { index: false, follow: false },
 };
